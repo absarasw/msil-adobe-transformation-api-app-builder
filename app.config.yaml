@@ -1,0 +1,28 @@
+application:
+  actions: actions
+  web: web-src
+  runtimeManifest:
+    packages:
+      msilapi:
+        license: Apache-2.0
+        actions:
+          generic:
+            function: actions/generic/index.js
+            web: 'yes'
+            runtime: nodejs:18
+            inputs:
+              LOG_LEVEL: debug
+            annotations:
+              final: true
+          invoke-api:
+            function: actions/invoke-api/index.js
+            web: 'yes'
+            runtime: nodejs:18
+            inputs:
+              LOG_LEVEL: debug
+              __AIO_MTLS_CERT: $__AIO_MTLS_CERT
+              __AIO_MTLS_KEY: $__AIO_MTLS_KEY
+              PROXY_ENDPOINT: $PROXY_ENDPOINT
+              STATE_TTL: $STATE_TTL
+            annotations:
+              final: true

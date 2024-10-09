@@ -1,0 +1,40 @@
+name: Run Adobe AIO-CLI Command
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-aio-cli:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Adobe AIO-CLI
+        run: npm install -g @adobe/aio-cli
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Configure AIO-CLI Runtime Properties
+        env:
+          AIO_RUNTIME_AUTH: ${{ secrets.AIO_RUNTIME_AUTH }}
+          AIO_RUNTIME_NAMESPACE: ${{ secrets.AIO_RUNTIME_NAMESPACE }}
+          AIO_RUNTIME_APIHOST: ${{ secrets.AIO_RUNTIME_APIHOST }}
+          __AIO_MTLS_CERT: ${{ secrets.__AIO_MTLS_CERT }}
+          __AIO_MTLS_KEY: ${{ secrets.__AIO_MTLS_KEY }}
+          PROXY_ENDPOINT: ${{ secrets.PROXY_ENDPOINT }}
+          MSIL_API_KEY: ${{ secrets.MSIL_API_KEY }}
+          STATE_TTL: ${{ secrets.STATE_TTL }}
+        run: aio rt property get --all
+
+      - name: Deploy AIO App
+        run: |
+          aio rt action update msilapi/invoke-api actions/invoke-api/index.js --web true --web-secure $MSIL_API_KEY
+          aio app deploy -a msilapi/invoke-api
